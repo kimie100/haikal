@@ -18,7 +18,7 @@ export default function Home() {
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0]);
   return (
     <>
-      <main ref={containerRef} className="relative min-h-screen">
+      <main ref={containerRef} className=" min-h-screen min-w-full">
         {/* Hero Section with Parallax Background */}
         <div className="relative h-screen overflow-hidden">
           <motion.div
@@ -37,11 +37,11 @@ export default function Home() {
         </div>
 
         {/* Services Section with Staggered Animation */}
-        <div className="relative bg-white z-10">
+        {/* <div className=" bg-white z-10">
           <ParallaxSection direction="left"
             fadeIn
             scale
-            className="h-screen">
+            className="h-screen w-fit">
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -51,7 +51,14 @@ export default function Home() {
               <ServiceIndex btnName='View' goTo='/service' />
             </motion.div>
           </ParallaxSection>
-        </div>
+        </div> */}
+        <ParallaxSection
+          direction="left"
+          speed={0.7}
+          className="h-screen bg-white"
+        >
+          <ServiceIndex btnName='View' goTo='/service' />
+        </ParallaxSection>
 
         {/* Additional Sections */}
         {/* <ParallaxSection speed={0.4} className="min-h-screen bg-gray-100">

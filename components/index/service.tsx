@@ -42,10 +42,10 @@ export const ServiceIndex = ({ btnName, goTo }: ServiceIndexProp) => {
                                 There are many types of services that we will apply in our packet tracer file and each file has different characteristics.
                             </p>
                         </div>
-                        <div className="flex flex-row space-x-4 justify-center items-center">
+                        <div className="flex flex-col md:flex-row space-x-4 justify-center items-center">
                             {items.map((item, index) => (
                                 <>
-                                    <Card className="w-[350px] h-[300px]" key={index} >
+                                    <Card className=" md:w-[350px] md:h-[300px]" key={index} >
                                         <CardHeader className="flex justify-center items-center">
                                             <Image src={item.image} alt="" width={50} height={50} />
                                             <CardTitle className="font-bold">{item.title}</CardTitle>
