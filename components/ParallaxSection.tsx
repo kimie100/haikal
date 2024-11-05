@@ -1,6 +1,5 @@
-
 "use client";
-import { motion, MotionValue, useScroll, useTransform, useSpring, useInView } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useInView, MotionStyle } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 
 interface ParallaxSectionProps {
@@ -8,7 +7,7 @@ interface ParallaxSectionProps {
     speed?: number;
     className?: string;
     direction?: "up" | "down" | "left" | "right";
-    offset?: [string, string];
+    offset?: ["start end" | "end start" | string, "start end" | "end start" | string];
     springConfig?: {
         stiffness?: number;
         damping?: number;
@@ -26,7 +25,7 @@ export const ParallaxSection = ({
     speed = 0.5,
     className = "",
     direction = "up",
-    offset = ["start end", "end start"],
+    // offset = ["start end", "end start"],
     springConfig = {
         stiffness: 100,
         damping: 30,
@@ -44,28 +43,20 @@ export const ParallaxSection = ({
 
     const { scrollYProgress } = useScroll({
         target: ref,
-        offset: offset
+        // offset
     });
 
     // Smooth scroll progress
     const smoothProgress = useSpring(scrollYProgress, springConfig);
 
-    // Calculate transform values based on direction
-    const getDirectionalTransform = () => {
-        const distance = 100 * speed;
-        switch (direction) {
-            case "up":
-                return { y: useTransform(smoothProgress, [0, 1], [distance, -distance]) };
-            case "down":
-                return { y: useTransform(smoothProgress, [0, 1], [-distance, distance]) };
-            case "left":
-                return { x: useTransform(smoothProgress, [0, 1], [distance, -distance]) };
-            case "right":
-                return { x: useTransform(smoothProgress, [0, 1], [-distance, distance]) };
-            default:
-                return { y: useTransform(smoothProgress, [0, 1], [distance, -distance]) };
-        }
-    };
+    // Define transforms at the component level
+    const distance = 100 * speed;
+
+    // Create all possible transform values
+    const transformUp = useTransform(smoothProgress, [0, 1], [distance, -distance]);
+    const transformDown = useTransform(smoothProgress, [0, 1], [-distance, distance]);
+    const transformLeft = useTransform(smoothProgress, [0, 1], [distance, -distance]);
+    const transformRight = useTransform(smoothProgress, [0, 1], [-distance, distance]);
 
     // Additional animation properties
     const scaleValue = useTransform(smoothProgress, [0, 0.5, 1], [0.8, 1, 0.8]);
@@ -91,8 +82,24 @@ export const ParallaxSection = ({
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, [mouseParallax]);
 
+    // Get the appropriate transform based on direction
+    const getDirectionalTransform = () => {
+        switch (direction) {
+            case "up":
+                return { y: transformUp };
+            case "down":
+                return { y: transformDown };
+            case "left":
+                return { x: transformLeft };
+            case "right":
+                return { x: transformRight };
+            default:
+                return { y: transformUp };
+        }
+    };
+
     // Combine all animation properties
-    const animationProps = {
+    const animationStyle: MotionStyle = {
         ...getDirectionalTransform(),
         ...(scale && { scale: scaleValue }),
         ...(rotate && { rotate: rotateValue }),
@@ -100,12 +107,7 @@ export const ParallaxSection = ({
         ...(mouseParallax && {
             x: mousePosition.x * 50,
             y: mousePosition.y * 50,
-        }),
-        transition: {
-            delay: delay,
-            type: "spring",
-            ...springConfig
-        }
+        })
     };
 
     return (
@@ -114,13 +116,18 @@ export const ParallaxSection = ({
             className={`relative overflow-hidden ${className}`}
         >
             <motion.div
-                style={animationProps}
+                style={animationStyle}
                 initial={fadeIn ? { opacity: 0 } : undefined}
                 animate={
                     isInView
                         ? { opacity: 1, y: 0, x: 0 }
                         : { opacity: fadeIn ? 0 : 1 }
                 }
+                transition={{
+                    delay,
+                    type: "spring",
+                    ...springConfig
+                }}
             >
                 {children}
             </motion.div>
